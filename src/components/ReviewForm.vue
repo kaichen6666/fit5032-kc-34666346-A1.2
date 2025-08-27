@@ -28,7 +28,7 @@ const comment = ref('')
 
 const submitReview = () => {
   reviews.push({
-    user: 'CurrentUser', // 这里可以用实际登录用户名
+    user: 'CurrentUser', // Use the actual login username here
     target: props.target,
     rating: rating.value,
     comment: comment.value,

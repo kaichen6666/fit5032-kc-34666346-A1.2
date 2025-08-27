@@ -115,6 +115,12 @@ const errors = ref({
 // 已提交用户
 const submittedCards = ref([])
 
+// 简单清理函数，去掉潜在 HTML 标签，避免 XSS
+const sanitizeInput = (value) => {
+  if (!value) return ''
+  return value.replace(/<.*?>/g, '').trim()
+}
+
 // 清空表单
 const clearForm = () => {
   Object.keys(formData.value).forEach((key) => {
@@ -143,7 +149,15 @@ const submitForm = () => {
     !errors.value.gender &&
     !errors.value.reason
   ) {
-    submittedCards.value.push({ ...formData.value })
+    submittedCards.value.push({
+      username: sanitizeInput(formData.value.username),
+      // 密码通常不展示在前端，这里只演示存储
+      password: formData.value.password,
+      email: sanitizeInput(formData.value.email),
+      isAustralian: formData.value.isAustralian,
+      reason: sanitizeInput(formData.value.reason),
+      gender: sanitizeInput(formData.value.gender),
+    })
     clearForm()
   }
 }

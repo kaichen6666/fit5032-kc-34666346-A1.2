@@ -1,10 +1,13 @@
 <template>
   <div class="user-home">
-    <h1>User Homepage</h1>
-    <p>This is the user's functional area.</p>
-    <button class="btn btn-secondary mb-4" @click="$emit('logout')">Logout</button>
+    <div class="header">
+      <h1>User Homepage</h1>
+      <button class="btn btn-secondary" @click="$emit('logout')">Logout</button>
+    </div>
 
-    <!-- 使用 Review 组件 -->
+    <p>This is the user's functional area.</p>
+
+    <!--  Review  -->
     <Review target="Product A" />
     <Review target="Product B" />
   </div>
@@ -18,5 +21,13 @@ import Review from './Review.vue'
 .user-home {
   max-width: 600px;
   margin: 0 auto;
+}
+
+/* The header uses flex layout, with the title on the left and the button on the right */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 </style>
