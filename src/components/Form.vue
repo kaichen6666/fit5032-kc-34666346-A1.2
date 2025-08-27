@@ -1,9 +1,21 @@
 <template>
   <div class="container mt-5">
+    <!-- 修改导航按钮位置到右上角 -->
+    <div class="row mb-4">
+      <div class="col-12 d-flex justify-content-end">
+        <button @click="$emit('go-home')" class="btn btn-outline-secondary me-2">
+          Return Home
+        </button>
+        <button @click="$emit('go-login')" class="btn btn-outline-primary">Login</button>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col-md-8 offset-md-2">
         <h1 class="text-center">User Information Form</h1>
         <form @submit.prevent="submitForm">
+          <!-- Right click on inspect to adjust the layout of the page -->
+          <!-- Ensure responsiveness for compatibility with various devices -->
           <div class="mb-3">
             <label for="username" class="form-label">Username</label>
             <input
@@ -142,6 +154,21 @@ const errors = ref({
   gender: null,
 })
 const submittedCards = ref([])
+
+const clearForm = () => {
+  formData.value = {
+    username: '',
+    password: '',
+    email: '',
+    isAustralian: false,
+    reason: '',
+    gender: '',
+  }
+  // 清空错误信息
+  Object.keys(errors.value).forEach((key) => {
+    errors.value[key] = null
+  })
+}
 
 const submitForm = () => {
   validateName(true)
