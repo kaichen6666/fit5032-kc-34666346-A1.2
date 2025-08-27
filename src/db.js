@@ -4,4 +4,4 @@
 export const adminUsers = [{ username: 'admin', password: 'Admin123!' }]
 
 // 普通用户账号，注册时会加入这里
-export const normalUsers = []
+export const normalUsers = [{ username: 'user1', password: 'User123!' }]

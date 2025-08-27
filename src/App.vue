@@ -6,7 +6,7 @@ import Form from './components/Form.vue'
 import UserHome from './components/UserHome.vue'
 import AdminHome from './components/AdminHome.vue'
 
-// 当前显示的页面：'home' | 'login' | 'register'
+// 当前显示的页面：'home' | 'login' | 'register' | 'userHome' | 'adminHome'
 const currentPage = ref('home')
 // 当前选择的登录类型：'user' | 'admin'
 const loginType = ref(null)
@@ -17,13 +17,11 @@ const goTo = (page, type = null) => {
   if (page === 'login') loginType.value = type
 }
 
-// 登录成功后回到主页（可以根据身份显示不同内容）
-const loginSuccess = () => {
-  if (loginType.value === 'admin') {
-    currentPage.value = 'adminHome'
-  } else {
-    currentPage.value = 'userHome'
-  }
+// 登录成功后回到主页（根据身份显示不同内容）
+const loginSuccess = (payload) => {
+  // payload = { username: 'xxx', type: 'user' | 'admin' }
+  loginType.value = payload.type
+  currentPage.value = payload.type === 'admin' ? 'adminHome' : 'userHome'
 }
 </script>
 
@@ -36,7 +34,7 @@ const loginSuccess = () => {
       @go-register="goTo('register')"
     />
 
-    <!-- Login -->
+    <!-- 登录页面 -->
     <Login
       v-else-if="currentPage === 'login'"
       :loginType="loginType"
@@ -45,14 +43,17 @@ const loginSuccess = () => {
       @login-success="loginSuccess"
     />
 
-    <!-- Form -->
+    <!-- 注册页面 -->
     <Form
       v-else-if="currentPage === 'register'"
       @go-home="goTo('home')"
       @go-login="goTo('login')"
     />
 
+    <!-- 用户主页 -->
     <UserHome v-else-if="currentPage === 'userHome'" @logout="goTo('home')" />
+
+    <!-- 管理员主页 -->
     <AdminHome v-else-if="currentPage === 'adminHome'" @logout="goTo('home')" />
   </main>
 </template>
