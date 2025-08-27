@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <!-- 修改导航按钮位置到右上角 -->
+    <!--  -->
     <div class="row mb-4">
       <div class="col-12 d-flex justify-content-end">
         <button @click="$emit('go-home')" class="btn btn-outline-secondary me-2">
@@ -132,9 +132,9 @@
 </template>
 
 <script setup>
-// Our logic will go here
-
 import { ref } from 'vue'
+
+const emit = defineEmits(['go-home', 'go-login'])
 
 const formData = ref({
   username: '',
@@ -153,8 +153,8 @@ const errors = ref({
   reason: null,
   gender: null,
 })
-const submittedCards = ref([])
 
+// 清空表单
 const clearForm = () => {
   formData.value = {
     username: '',
@@ -164,13 +164,13 @@ const clearForm = () => {
     reason: '',
     gender: '',
   }
-  // 清空错误信息
   Object.keys(errors.value).forEach((key) => {
     errors.value[key] = null
   })
 }
 
-const submitForm = () => {
+// 提交表单
+const submitForm = async () => {
   validateName(true)
   validatePassword(true)
   validateEmail(true)
@@ -184,25 +184,35 @@ const submitForm = () => {
     !errors.value.isAustralian &&
     !errors.value.gender
   ) {
-    submittedCards.value.push({
-      ...formData.value,
-    })
-    clearForm()
+    try {
+      const res = await fetch('http://localhost:3000/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: formData.value.username,
+          password: formData.value.password,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        return alert(data.message || 'Registration failed')
+      }
+      alert(data.message)
+      clearForm()
+      emit('go-login') // 注册成功跳转登录
+    } catch (err) {
+      console.error(err)
+      alert('Server error')
+    }
   }
 }
 
-//1.Username length must be ≥ 3
+// --- 验证函数保持原有逻辑 ---
 const validateName = (blur) => {
-  if (formData.value.username.length < 3) {
-    //alert('length must bigger than 3')
-    errors.value.username = 'Name must be at least 3 chars'
-  } else {
-    //alert('success')
-    errors.value.username = null
-  }
+  errors.value.username =
+    formData.value.username.length < 3 ? 'Name must be at least 3 chars' : null
 }
 
-//2.Length ≥ 8 characters，Contain at least 1 uppercase letter，Contain at least 1 lowercase letter，Contain at least 1 number，Contain at least 1 special character
 const validatePassword = (blur) => {
   const password = formData.value.password
   const minLength = 8
@@ -210,73 +220,35 @@ const validatePassword = (blur) => {
   const hasLowercase = /[a-z]/.test(password)
   const hasNumber = /\d/.test(password)
   const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
-  if (password.length < minLength) {
-    if (blur) errors.value.password = `Password must be at least ${minLength} characters`
-  } else if (!hasUppercase) {
-    if (blur) errors.value.password = `Password must contains at least one uppercase letter`
-  } else if (!hasLowercase) {
-    if (blur) errors.value.password = `Password must contains at least one lowercase letter`
-  } else if (!hasNumber) {
-    if (blur) errors.value.password = `Password must contains at least one number`
-  } else if (!hasSpecialChar) {
-    if (blur) errors.value.password = `Password must contains at least one special letter`
-  } else {
-    errors.value.password = null
-  }
+  if (password.length < minLength)
+    errors.value.password = `Password must be at least ${minLength} characters`
+  else if (!hasUppercase)
+    errors.value.password = 'Password must contain at least one uppercase letter'
+  else if (!hasLowercase)
+    errors.value.password = 'Password must contain at least one lowercase letter'
+  else if (!hasNumber) errors.value.password = 'Password must contain at least one number'
+  else if (!hasSpecialChar)
+    errors.value.password = 'Password must contain at least one special letter'
+  else errors.value.password = null
 }
 
 const validateEmail = (blur) => {
   const email = formData.value.email
-  // 简单正则验证邮箱格式
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!email) {
-    if (blur) errors.value.email = 'Email is required'
-  } else if (!emailRegex.test(email)) {
-    if (blur) errors.value.email = 'Invalid email format'
-  } else {
-    errors.value.email = null
-  }
+  if (!email) errors.value.email = 'Email is required'
+  else if (!emailRegex.test(email)) errors.value.email = 'Invalid email format'
+  else errors.value.email = null
 }
 
 const validateResident = (blur) => {
-  if (!formData.value.isAustralian) {
-    if (blur) errors.value.isAustralian = `You must be an Australian`
-  } else {
-    errors.value.isAustralian = null
-  }
+  errors.value.isAustralian = !formData.value.isAustralian ? 'You must be an Australian' : null
 }
 
 const validateGender = (blur) => {
-  if (!formData.value.gender) {
-    if (blur) errors.value.gender = `You must select a gender`
-  } else {
-    errors.value.gender = null
-  }
+  errors.value.gender = !formData.value.gender ? 'You must select a gender' : null
 }
 
 const validateReason = (blur) => {
-  const text = formData.value.reason
-  if (!text) {
-    if (blur) errors.value.reason = `Reason is required`
-  } else {
-    errors.value.reason = null
-  }
+  errors.value.reason = !formData.value.reason ? 'Reason is required' : null
 }
 </script>
-
-<style scoped>
-.card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-.card-header {
-  background-color: #275fda;
-  color: white;
-  padding: 10px;
-  border-radius: 10px 10px 0 0;
-}
-.list-group-item {
-  padding: 10px;
-}
-</style>
